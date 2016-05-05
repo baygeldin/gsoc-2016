@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+
+    <title><% if(typeof(title)!=='undefined') { %><%- title %><% } else { %><%- blog.title %><% } %></title>
+    <meta name="description" content="<% if(typeof(description)!=='undefined') { %><%- description %><% } else { %><%- blog.description %><% } %>" />
+
+    <meta name="HandheldFriendly" content="True" />
+    <meta name="MobileOptimized" content="320" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!--<link rel="shortcut icon" href="favicon.ico">-->
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+		<meta name="msapplication-TileColor" content="#9a1aaf">
+		<meta name="msapplication-TileImage" content="/assets/favicon/mstile-144x144.png">
+		<meta name="msapplication-config" content="/assets/favicon/browserconfig.xml" />
+
+		<link rel="manifest" href="/assets/favicon/manifest.json">
+		<link rel="apple-touch-icon-precomposed" sizes="57x57" href="/assets/favicon/apple-touch-icon-57x57.png" />
+		<link rel="apple-touch-icon-precomposed" sizes="60x60" href="/assets/favicon/apple-touch-icon-60x60.png" />
+		<link rel="apple-touch-icon-precomposed" sizes="72x72" href="/assets/favicon/apple-touch-icon-72x72.png" />
+		<link rel="apple-touch-icon-precomposed" sizes="76x76" href="/assets/favicon/apple-touch-icon-76x76.png" />
+		<link rel="apple-touch-icon-precomposed" sizes="114x114" href="/assets/favicon/apple-touch-icon-114x114.png" />
+		<link rel="apple-touch-icon-precomposed" sizes="120x120" href="/assets/favicon/apple-touch-icon-120x120.png" />
+		<link rel="apple-touch-icon-precomposed" sizes="144x144" href="/assets/favicon/apple-touch-icon-144x144.png" />
+		<link rel="apple-touch-icon-precomposed" sizes="152x152" href="/assets/favicon/apple-touch-icon-152x152.png" />
+		<link rel="mask-icon" href="/assets/favicon/safari-pinned-tab.svg" color="#9a1aaf">
+		<link rel="icon" type="image/png" href="/assets/favicon/favicon-16x16.png" sizes="16x16" />
+		<link rel="icon" type="image/png" href="/assets/favicon/favicon-32x32.png" sizes="32x32" />
+		<link rel="icon" type="image/png" href="/assets/favicon/favicon-96x96.png" sizes="96x96" />
+
+    <link rel="stylesheet" type="text/css" href="/assets/css/screen.css" />
+    <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Noto+Serif:400,700,400italic|Open+Sans:700,400" />
+    <link rel="stylesheet" type="text/css" href="/assets/css/prism.css" />
+
+    <!-- Ghost outputs important style and meta data with this tag -->
+    <!-- {{ghost_head}} -->
+</head>
+<body class="<% if(current.source == 'index') { %>home-template<% } else { %>post-template<% } %>">
+
+    <% if(current.source == 'index' && current.path.length == 1) { %>
+        <%- yield %>
+    <% } else if(typeof(public._data[current.source])!=='undefined') { %>
+        <%- partial("_post") %>
+    <% } else { %>
+        <%- partial("_page") %>
+    <% } %>
+
+    <%- partial("_shared/footer") %>
+    <!-- Ghost outputs important scripts and data with this tag -->
+    <!-- {{ghost_foot}} -->
+
+    <script src="https://code.jquery.com/jquery-1.12.3.min.js" integrity="sha256-aaODHAgvwQW1bFOGXMeX+pC4PZIPsvn2h1sArYOhgXQ=" crossorigin="anonymous"></script>    
+    <script type="text/javascript" src="/assets/js/jquery.fitvids.js"></script>    <script type="text/javascript" src="/assets/js/index.js"></script>
+    <script type="text/javascript" src="/assets/js/prism.js"></script>
+
+</body>
+</html>
