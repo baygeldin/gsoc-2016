@@ -2,7 +2,7 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>GSoC 2016</title>
-    <link>/gsoc-2016</link>
+    <link>http://baygeldin.name/gsoc-2016</link>
     <description>Web GDB frontend project with Mozilla.</description>
     <atom:link href="under-construction/feed.xml" rel="self" type="application/rss+xml" />
     
@@ -21,9 +21,9 @@
 <li>Example of test server &amp; test client</li>
 </ul>
 ]]></description>
-        <pubDate>Thu May 05 2016 06:17:01 GMT+0300 (MSK)</pubDate>
-        <link>/gsoc-2016under-construction</link>
-        <guid isPermaLink="true">/gsoc-2016under-construction</guid>
+        <pubDate>Thu May 05 2016 09:07:06 GMT+0300 (MSK)</pubDate>
+        <link>http://baygeldin.name/gsoc-2016under-construction</link>
+        <guid isPermaLink="true">http://baygeldin.name/gsoc-2016under-construction</guid>
       </item>
     
   </channel>
