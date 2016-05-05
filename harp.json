@@ -5,13 +5,12 @@
       "description": "Web GDB frontend project with Mozilla.",
       "logo": "/assets/images/gsoc.png",
       "cover": "/assets/images/bg.jpg",
-      "url": "/"
+      "url": "/gsoc-2016"
     },
     "author": {
       "name": "Alexander Baygeldin",
       "email": "a.baygeldin@gmail.com",
       "bio": "Hi, here are my weekly reports for GSoC"
     }
-  },
-  "domains": []
+  }
 }

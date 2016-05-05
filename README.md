@@ -7,4 +7,4 @@ Here are the sources of my static blog for a GSoC-2016 project.
 3. Run `harp compile` from the root
 4. Push `www` folder to `gh-pages` branch
 
-**Note**: it's certainly easy to automate it with CLI (using co-promt & commander), but it's easy enough already :)
+**Note**: it's certainly possible to automate it with CLI (using co-promt & commander), but it's easy enough already :)
