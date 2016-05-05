@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>GSoC 2016</title>
+    <link>/</link>
+    <description>Web GDB frontend project with Mozilla.</description>
+    <atom:link href="under-construction/feed.xml" rel="self" type="application/rss+xml" />
+    
+    
+      <item>
+        <title>Under Construction</title>
+        <description><![CDATA[<p>This is an example post. Weekly reports will be here once the coding period starts.</p>
+<h2>Getting Started</h2><blockquote>
+<p>For a fish, the archer fish is known to shoot down bugs from low hanging plants by spitting water at them.</p>
+</blockquote>
+<pre><code class="language-javascript">console.log(&#39;Hello World!&#39;);
+</code></pre>
+<hr>
+<h2>What&#39;s ready?</h2><ul>
+<li>Environment setup</li>
+<li>Example of test server &amp; test client</li>
+</ul>
+]]></description>
+        <pubDate>Thu May 05 2016 05:48:01 GMT+0300 (MSK)</pubDate>
+        <link>/under-construction</link>
+        <guid isPermaLink="true">/under-construction</guid>
+      </item>
+    
+  </channel>
+</rss>

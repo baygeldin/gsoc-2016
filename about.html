@@ -4,8 +4,8 @@
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
 
-    <title><% if(typeof(title)!=='undefined') { %><%- title %><% } else { %><%- blog.title %><% } %></title>
-    <meta name="description" content="<% if(typeof(description)!=='undefined') { %><%- description %><% } else { %><%- blog.description %><% } %>" />
+    <title>GSoC 2016</title>
+    <meta name="description" content="Web GDB frontend project with Mozilla." />
 
     <meta name="HandheldFriendly" content="True" />
     <meta name="MobileOptimized" content="320" />
@@ -38,17 +38,38 @@
     <!-- Ghost outputs important style and meta data with this tag -->
     <!-- {{ghost_head}} -->
 </head>
-<body class="<% if(current.source == 'index') { %>home-template<% } else { %>post-template<% } %>">
+<body class="post-template">
 
-    <% if(current.source == 'index' && current.path.length == 1) { %>
-        <%- yield %>
-    <% } else if(typeof(public._data[current.source])!=='undefined') { %>
-        <%- partial("_post") %>
-    <% } else { %>
-        <%- partial("_page") %>
-    <% } %>
+    
+        <main class="content" role="main">
 
-    <%- partial("_shared/footer") %>
+    <article class="post"><!-- page? -->
+        <header class="post-header">
+    <a class="blog-logo" href="/">
+        
+            <img src="/assets/images/gsoc.png" alt="Blog Logo" />
+        
+    </a>
+</header>
+
+
+        
+          <h1>About</h1><p>The idea of the project is to provide a GUI for gdb in the browser so that other developers can use it to easy and intuitively debug their projects.</p>
+        
+
+    </article>
+
+</main>
+
+    
+
+    <footer class="site-footer">
+    <a class="subscribe icon-feed" href="/rss/index.xml"><span class="tooltip">Subscribe!</span></a>
+    <div class="inner">
+         <section class="copyright">All rights violated  &copy; 2016</section>
+    </div>
+</footer>
+
     <!-- Ghost outputs important scripts and data with this tag -->
     <!-- {{ghost_foot}} -->
 
