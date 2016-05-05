@@ -1,5 +1,5 @@
 # GSoC-2016
-Here are the sources of my static blog for a GSoC-2016 project.
+Here are the sources of my static blog for the GSoC-2016 project.
 
 ## How to post
 1. Add meta data to `_data.json`
