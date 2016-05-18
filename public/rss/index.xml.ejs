@@ -11,8 +11,8 @@
         <title><%- post.title %></title>
         <description><![CDATA[<%- partial("../" + slug) %>]]></description>
         <pubDate><%= Date(post.date) %></pubDate>
-        <link><%= blog.url %><%- slug %></link>
-        <guid isPermaLink="true"><%= blog.url %><%- slug %></guid>
+        <link><%= blog.url %>/<%- slug %></link>
+        <guid isPermaLink="true"><%= blog.url %>/<%- slug %></guid>
       </item>
     <% } %>
   </channel>
