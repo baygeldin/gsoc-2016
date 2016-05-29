@@ -1,3 +1,5 @@
+# Hello World!
+
 Hi! Since this is the first post, let me introduce myself. My name is Alexander Baygeldin, I'm a student of the Saint-Petersburg State University and this summer I'll work on the web GDB frontend project for Mozilla as part of Google Summer of Code 2016. In this blog I will publish my weekly reports (it's the requirement of the project). By the way, English is not my native language, so sorry in advance for mistakes and typos. Anyway, I hope I'll be able to explain everything understandable. So, let's start! :)  
 
 In this project the goal is to provide a GUI for GDB in the browser so that other developers can use it to easily and intuitively debug projects running in a cloud environment. You can read more about it on the [about page](about). Here I'll focus on the architectural design of the project and some things and investigations that I've done during community bonding period.  

@@ -5,8 +5,6 @@
 
         <span class="post-meta"><time datetime="<%- new Date(date).toUTCString() %>"><%- date %></time></span>
 
-        <h1 class="post-title"><%= title %></h1>
-
         <section class="post-content">
             <%- yield %>
         </section>
@@ -22,7 +20,7 @@
 
             <section class="share">
                 <h4>Share this post</h4>
-                <a class="icon-twitter" href="http://twitter.com/share?text=<%= title %>&url=<%= blog.url + '/' +current.source %>"
+                <a class="icon-twitter" href="http://twitter.com/share?text=<%= date %>&url=<%= blog.url + '/' +current.source %>"
                     onclick="window.open(this.href, 'twitter-share', 'width=550,height=235');return false;">
                     <span class="hidden">Twitter</span>
                 </a>

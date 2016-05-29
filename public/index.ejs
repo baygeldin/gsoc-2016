@@ -11,15 +11,15 @@
 
 <main class="content" role="main">
     <% for (url in public._data) { %>
-    <% var post = public._data[url] %>
+    <% var post = public._data[url]; var src = partial(url); var start = src.indexOf("</h1>"); %>
 
     <article class="post">
         <header class="post-header">
             <span class="post-meta"><time datetime="<%- new Date(post.date).toUTCString() %>"><%- post.date %></time></span>
-            <h2 class="post-title"><a href="<%= blog.url %>/<%= url %>"><%- post.title %></a></h2>
+            <h2 class="post-title"><a href="<%= blog.url %>/<%= url %>"><%- src.slice(4, start) %></a></h2>
         </header>
         <section class="post-excerpt">
-            <p><%- partial(url).replace(/<[^>]*>/g, "").substr(0, 250) %>&hellip;</p>
+            <p><%- src.substr(start + 5, 250).replace(/<[^>]*>/g, "") %>&hellip; <a href="<%= blog.url %>/<%= url %>">Read more &#8674;</a></p>
         </section>
     </article>
 
