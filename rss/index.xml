@@ -8,8 +8,57 @@
     
     
       <item>
-        <title>Hello World!</title>
-        <description><![CDATA[<p>Hi! Since this is the first post, let me introduce myself. My name is Alexander Baygeldin, I&#39;m a student of the Saint-Petersburg State University and this summer I&#39;ll work on the web GDB frontend project for Mozilla as part of Google Summer of Code 2016. In this blog I will publish my weekly reports (it&#39;s the requirement of the project). By the way, English is not my native language, so sorry in advance for mistakes and typos. Anyway, I hope I&#39;ll be able to explain everything understandable. So, let&#39;s start! :)  </p>
+        <title></title>
+        <description><![CDATA[<h1>First week</h1><p>So, the first week of GSoC has passed and here&#39;s my first weekly report. During this week the main goal was to get some <code>gdb-js</code> tests running. So, I&#39;ve implemented some tests first and then started to raise functionality to match these tests. But as usual things have been changing along the way. </p>
+<h2>On tests</h2><p>The first idea was to write tests this way: </p>
+<ol>
+<li>Mock the stdin/stdout/stderr streams</li>
+<li>Pass them to the newly created GDB wrapper instance</li>
+<li>Check the state consistency and the stdin output</li>
+</ol>
+<p>For streams mocking I decided to create a command line util to run GDB and write the results of its execution to a json file (with streams splitting, of course). The problem here was that output of a child process in Node.js is line-buffered and debugging some sort of programs becomes hard. The workaround I&#39;ve come up with:</p>
+<pre><code class="language-javascript">let gdb = spawn(&#39;stdbuf&#39;, [&#39;-i0&#39;, &#39;-o0&#39;, &#39;-e0&#39;,
+  &#39;gdb&#39;, &#39;--interpreter=mi&#39;, &#39;./main&#39;])
+</code></pre>
+<p>So far so good and it feels like it&#39;s a right approach to do unit tests. But there is one significant disadvantage to it: the tests are not clear. It&#39;s hard to reason about what the specific test should do by looking at the json file with recorded streams. So, I decided to take another approach — use the actual GDB instance. So the tests now are looking more like integration tests than unit tests. But it&#39;s fine... The only thing I don&#39;t like is that they&#39;re much slower for obvious reasons :) The integration tests are done this way:</p>
+<ul>
+<li>I&#39;ve set up a <a href="https://github.com/baygeldin/gdb-examples">GitHub repo</a> with Docker image and an <a href="https://hub.docker.com/r/baygeldin/gdb-examples/">automation build for it</a> on DockerHub.</li>
+<li>I use <code>dockerode-promise</code> wrapper to run the Docker container with this image from Node.js</li>
+<li>And then execute tests within the container</li>
+</ul>
+<p>The next challenge was to write the code that would match these tests. First, I created some abstract implementation of the GDB wrapper class. I choosed to use <code>highland.js</code> for stream handling since it has zero dependencies and awesome documentation. Then I started to think about parser.</p>
+<h2>On parsers</h2><p>GDB/MI output syntax plays well with JSON in fact. So the natural approach was to map it to JSON. I&#39;ve considered several parser generators and decided to use <code>PEG.js</code> since it&#39;s very easy to use and it has a nice <a href="http://pegjs.org/online">online version</a>. There was one problem with symbols escaping in the grammar but I&#39;ve handled it by taking an example of JSON parser for PEG.js:</p>
+<pre><code class="language-javascript">Const &quot;c-string&quot;
+  = &quot;\&quot;&quot; chars:Char* &quot;\&quot;&quot; { return chars.join(&#39;&#39;) }
+
+Char &quot;char&quot;
+  = [\x20-\x21\x23-\x5B\x5D-\u10FFFF]
+  / &quot;\\&quot; seq:Escaped { return seq }
+
+Escaped &quot;escaped&quot;
+  = (&quot;\&quot;&quot; / &quot;\\&quot;) / (&quot;b&quot; / &quot;f&quot; / &quot;n&quot; / &quot;r&quot; / &quot;t&quot;) {
+      return &#39;\\&#39; + text()
+    }
+</code></pre>
+<p>By the way, seems like the official GDB/MI syntax has some mistakes according to their bugzilla but I hope it won&#39;t be a big problem.</p>
+<h2>Results</h2><ul>
+<li>Parser for GDB/MI is working</li>
+<li>Test for state checking is passing</li>
+</ul>
+<h2>P.S.</h2><ul>
+<li>During my parser generators investigation I&#39;ve understood that my knowledge of syntax analysers is poor... So I planned to spend some time on them later on. On the other hand, I found an awesome and almost fresh article about <a href="http://www.antlr.org/papers/allstar-techreport.pdf">state-of-art analyzer</a>!</li>
+<li>The next week I want to write even more tests and more methods for a GDB wrapper. I need to do it in pace in order to save some time for preparation to the exam which will be held on 9th of June.</li>
+</ul>
+]]></description>
+        <pubDate>Mon May 30 2016 03:14:11 GMT+0300 (MSK)</pubDate>
+        <link>http://baygeldin.name/gsoc-2016/first-week</link>
+        <guid isPermaLink="true">http://baygeldin.name/gsoc-2016/first-week</guid>
+      </item>
+    
+    
+      <item>
+        <title></title>
+        <description><![CDATA[<h1>Hello World!</h1><p>Hi! Since this is the first post, let me introduce myself. My name is Alexander Baygeldin, I&#39;m a student of the Saint-Petersburg State University and this summer I&#39;ll work on the web GDB frontend project for Mozilla as part of Google Summer of Code 2016. In this blog I will publish my weekly reports (it&#39;s the requirement of the project). By the way, English is not my native language, so sorry in advance for mistakes and typos. Anyway, I hope I&#39;ll be able to explain everything understandable. So, let&#39;s start! :)  </p>
 <p>In this project the goal is to provide a GUI for GDB in the browser so that other developers can use it to easily and intuitively debug projects running in a cloud environment. You can read more about it on the <a href="about">about page</a>. Here I&#39;ll focus on the architectural design of the project and some things and investigations that I&#39;ve done during community bonding period.  </p>
 <h2>Project Proposal</h2><blockquote>
 <p><strong>Disclaimer:</strong> this is the dense retelling of the project proposal, so feel free to skip it if you&#39;re already familiar with it.</p>
@@ -46,7 +95,7 @@ painless synchronization with the actual state of GDB. So, the react application
 <pre><code class="language-javascript">console.log(&#39;Hello World!&#39;)
 </code></pre>
 ]]></description>
-        <pubDate>Wed May 18 2016 21:25:10 GMT+0300 (MSK)</pubDate>
+        <pubDate>Mon May 30 2016 03:14:11 GMT+0300 (MSK)</pubDate>
         <link>http://baygeldin.name/gsoc-2016/hello-world</link>
         <guid isPermaLink="true">http://baygeldin.name/gsoc-2016/hello-world</guid>
       </item>
