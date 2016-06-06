@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+
+    <title>GSoC 2016</title>
+    <meta name="description" content="Web GDB frontend project with Mozilla." />
+
+    <meta name="HandheldFriendly" content="True" />
+    <meta name="MobileOptimized" content="320" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!--<link rel="shortcut icon" href="favicon.ico">-->
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+		<meta name="msapplication-TileColor" content="#9a1aaf">
+		<meta name="msapplication-TileImage" content="http://baygeldin.name/gsoc-2016/assets/favicon/mstile-144x144.png">
+		<meta name="msapplication-config" content="http://baygeldin.name/gsoc-2016/assets/favicon/browserconfig.xml" />
+
+		<link rel="manifest" href="http://baygeldin.name/gsoc-2016/assets/favicon/manifest.json">
+		<link rel="apple-touch-icon-precomposed" sizes="57x57" href="http://baygeldin.name/gsoc-2016/assets/favicon/apple-touch-icon-57x57.png" />
+		<link rel="apple-touch-icon-precomposed" sizes="60x60" href="http://baygeldin.name/gsoc-2016/assets/favicon/apple-touch-icon-60x60.png" />
+		<link rel="apple-touch-icon-precomposed" sizes="72x72" href="http://baygeldin.name/gsoc-2016/assets/favicon/apple-touch-icon-72x72.png" />
+		<link rel="apple-touch-icon-precomposed" sizes="76x76" href="http://baygeldin.name/gsoc-2016/assets/favicon/apple-touch-icon-76x76.png" />
+		<link rel="apple-touch-icon-precomposed" sizes="114x114" href="http://baygeldin.name/gsoc-2016/assets/favicon/apple-touch-icon-114x114.png" />
+		<link rel="apple-touch-icon-precomposed" sizes="120x120" href="http://baygeldin.name/gsoc-2016/assets/favicon/apple-touch-icon-120x120.png" />
+		<link rel="apple-touch-icon-precomposed" sizes="144x144" href="http://baygeldin.name/gsoc-2016/assets/favicon/apple-touch-icon-144x144.png" />
+		<link rel="apple-touch-icon-precomposed" sizes="152x152" href="http://baygeldin.name/gsoc-2016/assets/favicon/apple-touch-icon-152x152.png" />
+		<link rel="mask-icon" href="http://baygeldin.name/gsoc-2016/assets/favicon/safari-pinned-tab.svg" color="#9a1aaf">
+		<link rel="icon" type="image/png" href="http://baygeldin.name/gsoc-2016/assets/favicon/favicon-16x16.png" sizes="16x16" />
+		<link rel="icon" type="image/png" href="http://baygeldin.name/gsoc-2016/assets/favicon/favicon-32x32.png" sizes="32x32" />
+		<link rel="icon" type="image/png" href="http://baygeldin.name/gsoc-2016/assets/favicon/favicon-96x96.png" sizes="96x96" />
+
+    <link rel="stylesheet" type="text/css" href="http://baygeldin.name/gsoc-2016/assets/css/screen.css" />
+    <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Noto+Serif:400,700,400italic|Open+Sans:700,400" />
+    <link rel="stylesheet" type="text/css" href="http://baygeldin.name/gsoc-2016/assets/css/prism.css" />
+
+    <!-- Ghost outputs important style and meta data with this tag -->
+    <!-- {{ghost_head}} -->
+</head>
+<body class="post-template">
+
+    
+        <main class="content" role="main">
+
+    <article class="post">
+      <header class="post-header">
+    <a class="blog-logo" href="http://baygeldin.name/gsoc-2016">
+        
+            <img src="http://baygeldin.name/gsoc-2016/assets/images/gsoc.png" alt="Blog Logo" />
+        
+    </a>
+</header>
+
+
+        <span class="post-meta"><time datetime="Sun, 05 Jun 2016 21:00:00 GMT">6 June 2016</time></span>
+
+        <section class="post-content">
+            <h1>Rethinking</h1><p>This week the goal was to write more tests and implement more functionality for a GDB wrapper. However, I&#39;ve faced with some problems that led me to rethinking of library design and changing my plans for project implementation. So, let&#39;s see it step by step.</p>
+<h2>Library design</h2><p>Initially I wanted <code>gdb-js</code> to maintain a state because I thought that it&#39;d be more efficient and easier for the end user to consume. But back then I didn&#39;t understand how GDB/MI interface actually works. While reading through documentation I understood that it makes much more sense for a GDB wrapper to provide methods for getting state and events for state changes (e.g. &quot;stopped&quot;, &quot;running&quot;) than a bunch of &quot;update:whatever&quot; events. And it doesn&#39;t make it harder to connect with React application. So the library actually should do well only two things: provide asynchronous methods for GDB commands that return promises that resolve with a JSON object and expose events for state changes. So in the end it should be just a seamless and thin wrapper around GDB/MI parser (which is already written). GDB/MI interfce is perfect for this goal because on every command it returns only one line with a result. However, not everything in the garden is rosy... Some commands that I need GDB/MI does not support. For example, the <code>-symbol-list-variables</code> command which I need for getting globals is absent even if it&#39;s written in the documentation. The correspondent GDB command for it is <code>info variables</code> but using it is far from comfortable since it doesn&#39;t return only one line with a result. However, seems like it&#39;s a synchronous operation and every line between our command and <code>^done</code> line is the result of this operation. So, I believe I should just parse them somehow. At this stage I just made some refactoring on the library and disabled all previous tests.  </p>
+<p>The next problem with GDB/MI is that it&#39;s impossible to distinguish between target program output and GDB/MI output even if it&#39;s said that all target program output will be prefixed with @. Sounds good, but it&#39;s not true (see the <a href="https://sourceware.org/bugzilla/show_bug.cgi?id=8759">#8759 bug</a>). So I went a simple way and decided to return every line that a wrapper can&#39;t parse as a target program output. However, for this specific project (i.e. <code>react-gdb</code>) I believe that it makes more sense to require server to run GDB with <code>--tty=/what/ever</code> and leave it to user how to interact with this tty.  </p>
+<p>In general I want to finish GDB wrapper during the next week and start doing UI. But before doing UI I need to understand how the interaction with a server should work and it&#39;s another matter...</p>
+<h2>Server interaction</h2><p>Again, initially the <code>docker-exec-websocket-server</code> was suggested to use with <code>react-gdb</code>. Although it does a good job on exposing process streams from docker running on the server it&#39;s not enough for a debugger frontend. Debugger itself should also be a file explorer and (maybe) something else. It needs his own protocol. I considered three options:</p>
+<ol>
+<li>Still use <code>docker-exec-websocket-server</code> protocol, for everything else send HTTP requests</li>
+<li>Modify <code>docker-exec-websocket-server</code> by adding new message types</li>
+<li>Dirty hacks with remote procedures calling </li>
+</ol>
+<p>The first option seems like an overhead and it will be hard to document such protocol as well as to implement it. The third option has a whole bunch of different pitfalls so I don&#39;t even want to think of it. So I decided to go with the second option. While reading again through the sources of <code>docker-exec-websocket-server</code> I&#39;ve noticed that the only tricky part of it is back-pressure implementation (it also occupies the largest part of the code). So I thought, why not decouple it so that it would be easy to implement the new protocol with back-pressure? As a result I made the <code>ws-streamify</code> package.</p>
+<h2><a href="https://github.com/baygeldin/ws-streamify">ws-streamify</a></h2><p>The first thing I realized is that the back-pressure is already implemented in Node.js streams and there&#39;s no need to implement the wheel. All we need is to extend them and correctly tune the connection between sockets. Then I checked out existing implementations and found out that they don&#39;t support back-pressure. So I needed to make it myself. Initially I implemented the same approach as in <code>docker-exec-websocket-server</code> with <code>pause</code> and <code>resume</code> codes and wrote tests for it. Everything looked pretty well until I decided to pipe a stream to it and check network profiling in Chrome DevTools :) It turned out that this approach is not reliable. When stream that is being piped is too fast it manages to send enormous amounts of data before it receives a message from the consumer that asks to stop sending data. The buffers are being terribly overflowed constantly. By the way, I couldn&#39;t find any tests for handling back-pressure in the <code>docker-exec-websocket-server</code> sources. So, I thought that a better idea would be to implement a similar to TCP approach — explicit acknowledgement of whether the other side can send the next message or not. It <em>might</em> be a little overhead <strong>but it&#39;s reliable</strong>. I&#39;ve tested it and it works much better, the buffers are filling up in acceptable levels. Performance is also very fine, but if it&#39;s not enough you can simply increase the chunks size. The library is already on npm, have tests and CI is configured.</p>
+<h2>Final</h2><p>In the upcoming week I want to make a server using <code>ws-streamify</code> and docker containers (in order to make it more native with taskcluster environment). I&#39;ve already familirar with using docker API from javascript (btw, I managed to get rid of that hack with <code>sleep</code> in tests!). Also, I want to finish GDB wrapper (well, almost finish :)).</p>
+<h2>P.S</h2><ul>
+<li>Seems like I broke RSS the last time... Sorry, it&#39;s fixed now :)</li>
+<li>Since I decided to use a different protocol for <code>react-gdb</code> I don&#39;t need <code>ws-exec</code> anymore and I decided to delete it. Anyway, with <code>ws-streamify</code> it can be implemented very easily. </li>
+<li>I hate exams (ﾉಥДಥ)ﾉ︵┻━┻</li>
+</ul>
+        </section>
+
+        <footer class="post-footer">
+
+            
+                <section class="author">
+                    <h4>Alexander Baygeldin</h4>
+                    <p>Hi, here are my weekly reports for GSoC 2016</p>
+                </section>
+            
+
+            <section class="share">
+                <h4>Share this post</h4>
+                <a class="icon-twitter" href="http://twitter.com/share?text=6 June 2016&url=http://baygeldin.name/gsoc-2016/rethinking"
+                    onclick="window.open(this.href, 'twitter-share', 'width=550,height=235');return false;">
+                    <span class="hidden">Twitter</span>
+                </a>
+                <a class="icon-facebook" href="https://www.facebook.com/sharer/sharer.php?u=http://baygeldin.name/gsoc-2016/rethinking"
+                    onclick="window.open(this.href, 'facebook-share','width=580,height=296');return false;">
+                    <span class="hidden">Facebook</span>
+                </a>
+                <a class="icon-google-plus" href="https://plus.google.com/share?url=http://baygeldin.name/gsoc-2016/rethinking"
+                   onclick="window.open(this.href, 'google-plus-share', 'width=490,height=530');return false;">
+                    <span class="hidden">Google+</span>
+                </a>
+            </section>
+
+        </footer>
+
+    </article>
+
+</main>
+
+    
+
+    <footer class="site-footer">
+    <a class="subscribe icon-feed" href="http://baygeldin.name/gsoc-2016/rss/index.xml"><span class="tooltip">Subscribe!</span></a>
+    <div class="inner">
+         <section class="copyright">All rights violated  &copy; 2016</section>
+    </div>
+</footer>
+
+    <!-- Ghost outputs important scripts and data with this tag -->
+    <!-- {{ghost_foot}} -->
+
+    <script src="https://code.jquery.com/jquery-1.12.3.min.js" integrity="sha256-aaODHAgvwQW1bFOGXMeX+pC4PZIPsvn2h1sArYOhgXQ=" crossorigin="anonymous"></script>    
+    <script type="text/javascript" src="http://baygeldin.name/gsoc-2016/assets/js/jquery.fitvids.js"></script>
+    <script type="text/javascript" src="http://baygeldin.name/gsoc-2016/assets/js/index.js"></script>
+    <script type="text/javascript" src="http://baygeldin.name/gsoc-2016/assets/js/prism.js"></script>
+
+</body>
+</html>

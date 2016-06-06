@@ -8,15 +8,42 @@
     
     
       <item>
-        <title></title>
-        <description><![CDATA[<h1>First week</h1><p>So, the first week of GSoC has passed and here&#39;s my first weekly report. During this week the main goal was to get some <code>gdb-js</code> tests running. So, I&#39;ve implemented some tests first and then started to raise functionality to match these tests. But as usual things have been changing along the way. </p>
+        <title>Rethinking</title>
+        <description><![CDATA[<p>This week the goal was to write more tests and implement more functionality for a GDB wrapper. However, I&#39;ve faced with some problems that led me to rethinking of library design and changing my plans for project implementation. So, let&#39;s see it step by step.</p>
+<h2>Library design</h2><p>Initially I wanted <code>gdb-js</code> to maintain a state because I thought that it&#39;d be more efficient and easier for the end user to consume. But back then I didn&#39;t understand how GDB/MI interface actually works. While reading through documentation I understood that it makes much more sense for a GDB wrapper to provide methods for getting state and events for state changes (e.g. &quot;stopped&quot;, &quot;running&quot;) than a bunch of &quot;update:whatever&quot; events. And it doesn&#39;t make it harder to connect with React application. So the library actually should do well only two things: provide asynchronous methods for GDB commands that return promises that resolve with a JSON object and expose events for state changes. So in the end it should be just a seamless and thin wrapper around GDB/MI parser (which is already written). GDB/MI interfce is perfect for this goal because on every command it returns only one line with a result. However, not everything in the garden is rosy... Some commands that I need GDB/MI does not support. For example, the <code>-symbol-list-variables</code> command which I need for getting globals is absent even if it&#39;s written in the documentation. The correspondent GDB command for it is <code>info variables</code> but using it is far from comfortable since it doesn&#39;t return only one line with a result. However, seems like it&#39;s a synchronous operation and every line between our command and <code>^done</code> line is the result of this operation. So, I believe I should just parse them somehow. At this stage I just made some refactoring on the library and disabled all previous tests.  </p>
+<p>The next problem with GDB/MI is that it&#39;s impossible to distinguish between target program output and GDB/MI output even if it&#39;s said that all target program output will be prefixed with @. Sounds good, but it&#39;s not true (see the <a href="https://sourceware.org/bugzilla/show_bug.cgi?id=8759">#8759 bug</a>). So I went a simple way and decided to return every line that a wrapper can&#39;t parse as a target program output. However, for this specific project (i.e. <code>react-gdb</code>) I believe that it makes more sense to require server to run GDB with <code>--tty=/what/ever</code> and leave it to user how to interact with this tty.  </p>
+<p>In general I want to finish GDB wrapper during the next week and start doing UI. But before doing UI I need to understand how the interaction with a server should work and it&#39;s another matter...</p>
+<h2>Server interaction</h2><p>Again, initially the <code>docker-exec-websocket-server</code> was suggested to use with <code>react-gdb</code>. Although it does a good job on exposing process streams from docker running on the server it&#39;s not enough for a debugger frontend. Debugger itself should also be a file explorer and (maybe) something else. It needs his own protocol. I considered three options:</p>
+<ol>
+<li>Still use <code>docker-exec-websocket-server</code> protocol, for everything else send HTTP requests</li>
+<li>Modify <code>docker-exec-websocket-server</code> by adding new message types</li>
+<li>Dirty hacks with remote procedures calling </li>
+</ol>
+<p>The first option seems like an overhead and it will be hard to document such protocol as well as to implement it. The third option has a whole bunch of different pitfalls so I don&#39;t even want to think of it. So I decided to go with the second option. While reading again through the sources of <code>docker-exec-websocket-server</code> I&#39;ve noticed that the only tricky part of it is back-pressure implementation (it also occupies the largest part of the code). So I thought, why not decouple it so that it would be easy to implement the new protocol with back-pressure? As a result I made the <code>ws-streamify</code> package.</p>
+<h2><a href="https://github.com/baygeldin/ws-streamify">ws-streamify</a></h2><p>The first thing I realized is that the back-pressure is already implemented in Node.js streams and there&#39;s no need to implement the wheel. All we need is to extend them and correctly tune the connection between sockets. Then I checked out existing implementations and found out that they don&#39;t support back-pressure. So I needed to make it myself. Initially I implemented the same approach as in <code>docker-exec-websocket-server</code> with <code>pause</code> and <code>resume</code> codes and wrote tests for it. Everything looked pretty well until I decided to pipe a stream to it and check network profiling in Chrome DevTools :) It turned out that this approach is not reliable. When stream that is being piped is too fast it manages to send enormous amounts of data before it receives a message from the consumer that asks to stop sending data. The buffers are being terribly overflowed constantly. By the way, I couldn&#39;t find any tests for handling back-pressure in the <code>docker-exec-websocket-server</code> sources. So, I thought that a better idea would be to implement a similar to TCP approach — explicit acknowledgement of whether the other side can send the next message or not. It <em>might</em> be a little overhead <strong>but it&#39;s reliable</strong>. I&#39;ve tested it and it works much better, the buffers are filling up in acceptable levels. Performance is also very fine, but if it&#39;s not enough you can simply increase the chunks size. The library is already on npm, have tests and CI is configured.</p>
+<h2>Final</h2><p>In the upcoming week I want to make a server using <code>ws-streamify</code> and docker containers (in order to make it more native with taskcluster environment). I&#39;ve already familirar with using docker API from javascript (btw, I managed to get rid of that hack with <code>sleep</code> in tests!). Also, I want to finish GDB wrapper (well, almost finish :)).</p>
+<h2>P.S</h2><ul>
+<li>Seems like I broke RSS the last time... Sorry, it&#39;s fixed now :)</li>
+<li>Since I decided to use a different protocol for <code>react-gdb</code> I don&#39;t need <code>ws-exec</code> anymore and I decided to delete it. Anyway, with <code>ws-streamify</code> it can be implemented very easily. </li>
+<li>I hate exams (ﾉಥДಥ)ﾉ︵┻━┻</li>
+</ul>
+]]></description>
+        <pubDate>Mon Jun 06 2016 00:00:00 GMT+0300 (MSK)</pubDate>
+        <link>http://baygeldin.name/gsoc-2016/rethinking</link>
+        <guid isPermaLink="true">http://baygeldin.name/gsoc-2016/rethinking</guid>
+      </item>
+    
+    
+      <item>
+        <title>First week</title>
+        <description><![CDATA[<p>So, the first week of GSoC has passed and here&#39;s my first weekly report. During this week the main goal was to get some <code>gdb-js</code> tests running. So, I&#39;ve implemented some tests first and then started to raise functionality to match these tests. But as usual things have been changing along the way. </p>
 <h2>On tests</h2><p>The first idea was to write tests this way: </p>
 <ol>
 <li>Mock the stdin/stdout/stderr streams</li>
 <li>Pass them to the newly created GDB wrapper instance</li>
 <li>Check the state consistency and the stdin output</li>
 </ol>
-<p>For streams mocking I decided to create a command line util to run GDB and write the results of its execution to a json file (with streams splitting, of course). The problem here was that output of a child process in Node.js is line-buffered and debugging some sort of programs becomes hard. The workaround I&#39;ve come up with:</p>
+<p>For streams mocking I decided to create a command line util to run GDB and write the results of its execution to a json file (with streams splitting, of course). The problem here was that output of some programs when they are not attached to interactive device is line-buffered and debugging these programs becomes hard. The workaround I&#39;ve come up with:</p>
 <pre><code class="language-javascript">let gdb = spawn(&#39;stdbuf&#39;, [&#39;-i0&#39;, &#39;-o0&#39;, &#39;-e0&#39;,
   &#39;gdb&#39;, &#39;--interpreter=mi&#39;, &#39;./main&#39;])
 </code></pre>
@@ -50,24 +77,24 @@ Escaped &quot;escaped&quot;
 <li>The next week I want to write even more tests and more methods for a GDB wrapper. I need to do it in pace in order to save some time for preparation to the exam which will be held on 9th of June.</li>
 </ul>
 ]]></description>
-        <pubDate>Mon May 30 2016 03:14:11 GMT+0300 (MSK)</pubDate>
+        <pubDate>Mon May 30 2016 00:00:00 GMT+0300 (MSK)</pubDate>
         <link>http://baygeldin.name/gsoc-2016/first-week</link>
         <guid isPermaLink="true">http://baygeldin.name/gsoc-2016/first-week</guid>
       </item>
     
     
       <item>
-        <title></title>
-        <description><![CDATA[<h1>Hello World!</h1><p>Hi! Since this is the first post, let me introduce myself. My name is Alexander Baygeldin, I&#39;m a student of the Saint-Petersburg State University and this summer I&#39;ll work on the web GDB frontend project for Mozilla as part of Google Summer of Code 2016. In this blog I will publish my weekly reports (it&#39;s the requirement of the project). By the way, English is not my native language, so sorry in advance for mistakes and typos. Anyway, I hope I&#39;ll be able to explain everything understandable. So, let&#39;s start! :)  </p>
+        <title>Hello World!</title>
+        <description><![CDATA[<p>Hi! Since this is the first post, let me introduce myself. My name is Alexander Baygeldin, I&#39;m a student of the Saint-Petersburg State University and this summer I&#39;ll work on the web GDB frontend project for Mozilla as part of Google Summer of Code 2016. In this blog I will publish my weekly reports (it&#39;s the requirement of the project). By the way, English is not my native language, so sorry in advance for mistakes and typos. Anyway, I hope I&#39;ll be able to explain everything understandable. So, let&#39;s start! :)  </p>
 <p>In this project the goal is to provide a GUI for GDB in the browser so that other developers can use it to easily and intuitively debug projects running in a cloud environment. You can read more about it on the <a href="about">about page</a>. Here I&#39;ll focus on the architectural design of the project and some things and investigations that I&#39;ve done during community bonding period.  </p>
 <h2>Project Proposal</h2><blockquote>
 <p><strong>Disclaimer:</strong> this is the dense retelling of the project proposal, so feel free to skip it if you&#39;re already familiar with it.</p>
 </blockquote>
 <p>Basically, this project is a Single Page Application which, when given a link to the WebSockets server, provides a web-interface to interact with GDB by processing stdin/stdout/stderr streams from it. It’s just a static page and all it needs to work is a link to the WebSocket server which can be implemented quickly in any language (Go, JavaScript, Ruby, etc.). So, react-gdb is server
 agnostic and can even be run on the GitHub pages :) Conceptually, I see the GUI like this:  </p>
-<p><img src="assets/images/wireframe.png" alt="Wireframe">   </p>
+<p><img src="http://baygeldin.name/gsoc-2016/assets/images/wireframe.png" alt="Wireframe">   </p>
 <p>The framework of choice for this project is React/Redux. This is the perfect choice for this kind of project since the GUI can be very well represented as a function of GDB state. However, it’s better to keep the logic for GDB streams processing outside of React application to maintain a good separation of concerns and make sure our application knows as little as possible about GDB. It’s possible by creating a GDB abstraction. I see the project architecture like this:  </p>
-<p><img src="assets/images/architecture.png" alt="Architecture">   </p>
+<p><img src="http://baygeldin.name/gsoc-2016/assets/images/architecture.png" alt="Architecture">   </p>
 <p>The abstraction should accept actions, process them, and forward them to the server. And it should also maintain its state (i.e. current file, current line of code, backtrace, locals, etc.) and notify our application every time it changes. This will lead to the
 painless synchronization with the actual state of GDB. So, the react application will concern only about how things look and will maintain an UI state within it, while GDB abstraction will maintain the state of GDB and will know how to work with it. This will let me to implement the parts of the project step-by-step, independently and will allow to easily test everything thanks to loose coupling.</p>
 <h2>Investigations</h2><p>During community bonding period I&#39;ve set up an initial environment and made myself familiar with <code>docker-exec-websocket-server</code> so that when the coding period starts I&#39;ll start actually coding. In this section I&#39;ll try to reveal more detail about it.  </p>
@@ -75,7 +102,7 @@ painless synchronization with the actual state of GDB. So, the react application
 <h3><a href="https://github.com/baygeldin/ws-exec">ws-exec</a></h3><p>When I was playing with <code>docker-exec-websocket-server</code> I found out that it&#39;s not optimised for browser use and it&#39;s not working out-of-the-box without some tweaking. I considered making a PR, but decided to create a separate repo. The main reason for this is that I wanted to make the debugger able to use with local projects, and having a dependency for Docker is not a good user experience. So, the main idea was to generalize the <code>docker-exec-websocket-server</code>. The good news is that protocol it uses is very common (not docker specific) so it&#39;s actually easy to keep <code>ws-exec</code> compatible with <code>docker-exec-websocket-server</code>. In fact, it should be possible to rewrite <code>docker-exec-websocket-server</code> using <code>ws-exec</code> (I kept that in mind when I was writing <code>ws-exec</code>), but first it needs some (maybe lot) refactoring and tests. So, I&#39;ll leave it for later since client side part of <code>ws-exec</code> is already working well with server side part of <code>docker-exec-websocket-server</code>. Also, when I was studying the sources of <code>docker-exec-websocket-server</code> I understood how back-pressure is implemented there and why it&#39;s necessary. </p>
 <h3><a href="https://github.com/baygeldin/gdb-js">gdb-js</a></h3><p>The second abstraction is GDB/MI wrapper. It accepts process streams (e.g. produced by <code>ws-exec</code>) and provides a handy interface to GDB. There are such wrappers already, however none of them suit this project. The first drawback of them is that they do not accept streams and hence not usable in the browser environment. The second drawback (and the main one) is that they do not maintain a consistent state of GDB. In this project we <em>need</em> to have state of GDB since after every action the current file, current line of code, call stack, locals, globals and many other things can change. Handling all of these in the client-side app is error-prone and just a bad separation of concerns. So, the GDB wrapper should maintain the state itself and provide handy events for notifying the application on every state change. With such wrapper writing the UI will be <strong>much</strong> easier. So, as stated in my timeline, I will focus on this part of the project for a while. And I&#39;ll start with writing tests. This is a perfect project for practicing BDD :)</p>
 <h3><a href="https://github.com/baygeldin/react-gdb">react-gdb</a></h3><p>Finally, we&#39;re here :) It&#39;s the main goal of this project — the GUI. It&#39;s specific for GDB and relies on the protocol <code>ws-exec</code> uses, but one of the core ideas is that these parts should be easily swappable. And it&#39;s definitely possible since <code>gdb-js</code> and <code>ws-exec</code> are decoupled from the application itself. Basically, <code>react-gdb</code> is just a static site, but for convenience it&#39;ll be also published on npm (without dependencies since it&#39;s just a static assets). At this stage of the project there&#39;s no React/Redux here. I&#39;ll start to use them once <code>gdb-js</code> starts to become solid. However, the environment for this is ready: the demo server that runs docker container, docker image and configured webpack. Here&#39;s a quick example of how <code>ws-exec</code> and demo server are glued together within <code>react-gdb</code>: </p>
-<p><img src="assets/images/example_console.png" alt="Example">   </p>
+<p><img src="http://baygeldin.name/gsoc-2016/assets/images/example_console.png" alt="Example">   </p>
 <p>Also, I was experimenting with using webpack for bundling npm packages and backend, but understood that it wasn&#39;t a good idea :P Webpack wasn&#39;t designed for this type of things. That being said, I had experience with webpack before, but I think that I finally got the philosophy behind it only recently. Here&#39;re some things that I&#39;ve understood:</p>
 <ul>
 <li>npm is not made for minified and bundled versions! It&#39;s conceptually wrong to publish such packages. CDN is for minified versions.</li>
@@ -95,7 +122,7 @@ painless synchronization with the actual state of GDB. So, the react application
 <pre><code class="language-javascript">console.log(&#39;Hello World!&#39;)
 </code></pre>
 ]]></description>
-        <pubDate>Mon May 30 2016 03:14:11 GMT+0300 (MSK)</pubDate>
+        <pubDate>Wed May 18 2016 00:00:00 GMT+0300 (MSK)</pubDate>
         <link>http://baygeldin.name/gsoc-2016/hello-world</link>
         <guid isPermaLink="true">http://baygeldin.name/gsoc-2016/hello-world</guid>
       </item>
