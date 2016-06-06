@@ -6,11 +6,11 @@
     <description><%- blog.description %></description>
     <atom:link href="<%- url %>/feed.xml" rel="self" type="application/rss+xml" />
     <% for(slug in public._data) { %>
-    <% var post = public._data[slug] %>
+    <% var post = public._data[slug]; var src = partial("../" + slug); var start = src.indexOf("</h1>"); %>
       <item>
-        <title><%- post.title %></title>
-        <description><![CDATA[<%- partial("../" + slug) %>]]></description>
-        <pubDate><%= Date(post.date) %></pubDate>
+        <title><%- src.slice(4, start) %></title>
+        <description><![CDATA[<%- src.slice(start + 5) %>]]></description>
+        <pubDate><%= new Date(post.date) %></pubDate>
         <link><%= blog.url %>/<%- slug %></link>
         <guid isPermaLink="true"><%= blog.url %>/<%- slug %></guid>
       </item>

@@ -9,7 +9,7 @@ The first idea was to write tests this way:
 2. Pass them to the newly created GDB wrapper instance
 3. Check the state consistency and the stdin output
 
-For streams mocking I decided to create a command line util to run GDB and write the results of its execution to a json file (with streams splitting, of course). The problem here was that output of a child process in Node.js is line-buffered and debugging some sort of programs becomes hard. The workaround I've come up with:
+For streams mocking I decided to create a command line util to run GDB and write the results of its execution to a json file (with streams splitting, of course). The problem here was that output of some programs when they are not attached to interactive device is line-buffered and debugging these programs becomes hard. The workaround I've come up with:
 
 ```javascript
 let gdb = spawn('stdbuf', ['-i0', '-o0', '-e0',
