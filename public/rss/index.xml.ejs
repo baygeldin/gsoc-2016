@@ -9,7 +9,7 @@
     <% var post = public._data[slug]; var src = partial("../" + slug); var start = src.indexOf("</h1>"); %>
       <item>
         <title><%- src.slice(4, start) %></title>
-        <description><![CDATA[<%- src.slice(start + 5) %>]]></description>
+        <description><![CDATA[<%- src.slice(start + 5).replace(/src=\"assets\/images/g, 'src="' + blog.url + '/assets/images') %>]]></description>
         <pubDate><%= new Date(post.date) %></pubDate>
         <link><%= blog.url %>/<%- slug %></link>
         <guid isPermaLink="true"><%= blog.url %>/<%- slug %></guid>
