@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+
+    <title>GSoC 2016</title>
+    <meta name="description" content="Web GDB frontend project with Mozilla." />
+
+    <meta name="HandheldFriendly" content="True" />
+    <meta name="MobileOptimized" content="320" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!--<link rel="shortcut icon" href="favicon.ico">-->
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+		<meta name="msapplication-TileColor" content="#9a1aaf">
+		<meta name="msapplication-TileImage" content="http://baygeldin.name/gsoc-2016/assets/favicon/mstile-144x144.png">
+		<meta name="msapplication-config" content="http://baygeldin.name/gsoc-2016/assets/favicon/browserconfig.xml" />
+
+		<link rel="manifest" href="http://baygeldin.name/gsoc-2016/assets/favicon/manifest.json">
+		<link rel="apple-touch-icon-precomposed" sizes="57x57" href="http://baygeldin.name/gsoc-2016/assets/favicon/apple-touch-icon-57x57.png" />
+		<link rel="apple-touch-icon-precomposed" sizes="60x60" href="http://baygeldin.name/gsoc-2016/assets/favicon/apple-touch-icon-60x60.png" />
+		<link rel="apple-touch-icon-precomposed" sizes="72x72" href="http://baygeldin.name/gsoc-2016/assets/favicon/apple-touch-icon-72x72.png" />
+		<link rel="apple-touch-icon-precomposed" sizes="76x76" href="http://baygeldin.name/gsoc-2016/assets/favicon/apple-touch-icon-76x76.png" />
+		<link rel="apple-touch-icon-precomposed" sizes="114x114" href="http://baygeldin.name/gsoc-2016/assets/favicon/apple-touch-icon-114x114.png" />
+		<link rel="apple-touch-icon-precomposed" sizes="120x120" href="http://baygeldin.name/gsoc-2016/assets/favicon/apple-touch-icon-120x120.png" />
+		<link rel="apple-touch-icon-precomposed" sizes="144x144" href="http://baygeldin.name/gsoc-2016/assets/favicon/apple-touch-icon-144x144.png" />
+		<link rel="apple-touch-icon-precomposed" sizes="152x152" href="http://baygeldin.name/gsoc-2016/assets/favicon/apple-touch-icon-152x152.png" />
+		<link rel="mask-icon" href="http://baygeldin.name/gsoc-2016/assets/favicon/safari-pinned-tab.svg" color="#9a1aaf">
+		<link rel="icon" type="image/png" href="http://baygeldin.name/gsoc-2016/assets/favicon/favicon-16x16.png" sizes="16x16" />
+		<link rel="icon" type="image/png" href="http://baygeldin.name/gsoc-2016/assets/favicon/favicon-32x32.png" sizes="32x32" />
+		<link rel="icon" type="image/png" href="http://baygeldin.name/gsoc-2016/assets/favicon/favicon-96x96.png" sizes="96x96" />
+
+    <link rel="stylesheet" type="text/css" href="http://baygeldin.name/gsoc-2016/assets/css/screen.css" />
+    <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Noto+Serif:400,700,400italic|Open+Sans:700,400" />
+    <link rel="stylesheet" type="text/css" href="http://baygeldin.name/gsoc-2016/assets/css/prism.css" />
+
+    <!-- Ghost outputs important style and meta data with this tag -->
+    <!-- {{ghost_head}} -->
+</head>
+<body class="post-template">
+
+    
+        <main class="content" role="main">
+
+    <article class="post">
+      <header class="post-header">
+    <a class="blog-logo" href="http://baygeldin.name/gsoc-2016">
+        
+            <img src="http://baygeldin.name/gsoc-2016/assets/images/gsoc.png" alt="Blog Logo" />
+        
+    </a>
+</header>
+
+
+        <span class="post-meta"><time datetime="Tue, 21 Jun 2016 21:00:00 GMT">22 June 2016</time></span>
+
+        <section class="post-content">
+            <h1>Milestone</h1><p>Weekly reports are slowly turning into fortnightly reports, heh. But despite this I&#39;m satisfied with the progress. During this time I managed to finish <code>gdb-js</code>, write documentation for it, publish it on npm and set up CI. Also, I fixed the <code>ws-streamify</code> and puzzled out the debugging of multithreaded and multi-process&#39;ed targets in GDB and added the corresponding examples to <code>gdb-examples</code> repo. But what&#39;s more important — I&#39;ve finally acquired a good understanding of how the project should be implemented. And in the meantime I&#39;ve passed another exam :D But let&#39;s see it in a little more detail.</p>
+<h2>Multithreading</h2><p>Honestly, I hate multithreading :D Except maybe its application to pure functional languages. But for everything else it just sounds scary to me. Deadlocks, unobvious control flow... That&#39;s why I like event-loop. And that&#39;s why I deliberately avoided this topic while I was writing <code>gdb-js</code>. But it couldn&#39;t be postponed forever, so I created a simple yet handy example of multithreaded program for <code>gdb-examples</code> repo: multiple ticket-sellers sell tickets simultanously until there&#39;s no tickets remain. And while playing with it in GDB I understood that <code>non-stop</code> and <code>target-async</code> modes are must have in a GDB frontend. So i included them in <code>gdb-js</code> and then added <code>thread</code> argument to all of the methods where it makes sense. That&#39;s it.</p>
+<h2>Multiple targets</h2><p>First off, I read <a href="http://blog.chromium.org/2008/09/multi-process-architecture.html">how it works in Chromium</a> and then <a href="https://blog.mozilla.org/addons/2016/04/11/the-why-of-electrolysis/">how it&#39;s coming to Firefox</a>. From these articles I understood how important it is to have a multi-process architecture and thus it&#39;s neccessary to have the ability to debug it. However, unlike threads when a process is created it&#39;s not attached to GDB automatically. The exception to this is only systems that support <code>fork</code> and <code>vfork</code>. On other systems (e.g. <a href="https://msdn.microsoft.com/en-us/library/ms682425.aspx">Windows</a>) I believe it should be done manually. But even in this case <a href="https://sourceware.org/gdb/onlinedocs/gdb/Forks.html">it seems that it&#39;s not that straight-forward</a>. So I decided to just add methods for attaching and detaching processes to <code>gdb-js</code> and a method that disables <code>detach-on-fork</code> mode, so that forks will be attached automatically. Also, I&#39;ve created the example of a program with multiple processes (multiple counters) and pushed it to <code>gdb-examples</code> repo.</p>
+<h2>Python and CLI commands</h2><p>In previous post I said that MI interface is lacking some commands. But GDB allows to use CLI commands in MI mode with <code>-interpreter-exec console</code>. The only problem with it is getting the results. So I decided to make use of Python and its function <code>gdb.execute(&quot;&lt;CLI command&gt;&quot;, False, True)</code>. In GDB &gt;= 7.3 it has a third argument which when <code>True</code> returns a string with results of CLI command execution. So I wrapped it into an useful command <code>concat</code> which executes given CLI command, adds a given prefix to the results of command execution and prints this in a single MI console record. Also, I&#39;ve created a command <code>info context</code> which takes all variables (globals, static, locals) in the current context and prints a nice JSON. However, getting all (I mean, ALL) globals for the current target is only possible with manually parsing of its symbol table. So I just decided to write one another pegjs parser for the results of <code>info variables</code> command. It all works pretty well. Besides we now have a nice infrastructure to add new functionality to GDB without even bothering the server. However, scripts can be (from my experience) only ~3700 symbols long. Maybe it makes sense to make use of <code>pyminifier</code>. To summarize, this is how I manage the results handling now, it&#39;s an exact copy of the actual flow in the code (I sooo love streams):</p>
+<p><img src="assets/images/flow.png" alt="Flow">   </p>
+<h2>gdb-js</h2><p><a href="https://travis-ci.org/baygeldin/gdb-js">Here&#39;s</a> Travis CI. <a href="http://npmjs.com/package/gdb-js">Here&#39;s</a> the npm package. <a href="https://baygeldin.github.io/gdb-js">Here&#39;s</a> the documentation. I considered several documentation generators, but then just decided to use JSDoc. Although I also like Docco and its <a href="https://en.wikipedia.org/wiki/Literate_programming">literate programming philosophy</a>. </p>
+<h2>react-gdb</h2><p>Finally, the most important part. Thanks to @jonasf I finally realized the core goals that the project is pursuing and how it should be implemented to fit these goals. Back then I thought that <code>react-gdb</code> is just a static site that needs a link to the WebSocket server to work. This made me think that <code>react-gdb</code> is something that has dependency on the server (and its protocol, of course). But in fact, it&#39;s just a React component that can have a much simpler interface (almost the same as <code>gdb-js</code> has). It can accept a child process (e.g. an instance of <code>docker-exec-websocket-server</code>), source provider and (optionally) debug log provider. Source provider can be implemented as a plain function that accecpts a file name and returns the sources of this file (for Firefox, it can be a hg repository provider, for example). This interface will make <code>react-gdb</code> absolutely server-agnostic, agnostic about the location of sources and reusable. So, that&#39;s it. By the way, I&#39;ve also put a lot of thought on how the UI should look like when I add multithreading and multiple targets support to it. I&#39;ve ended up with something similar to NetBeans approach (with the amendment that I want to group threads by a process):</p>
+<video controls="controls">
+  <source src="assets/other/netbeans-multithreaded-debugging.mp4">
+</source></video>   
+
+<h2>P.S.</h2><ul>
+<li>As for <code>ws-streamify</code> it now merges the buffers into one message when it&#39;s possible.</li>
+<li>I&#39;ve spent some time on improving my vim workflow with a bunch of useful plugins and now I regret not doing it earlier т_т.</li>
+<li>I have an exam on 24th of June. So, I will continue my work on the project after it.</li>
+</ul>
+        </section>
+
+        <footer class="post-footer">
+
+            
+                <section class="author">
+                    <h4>Alexander Baygeldin</h4>
+                    <p>Hi, here are my weekly reports for GSoC 2016</p>
+                </section>
+            
+
+            <section class="share">
+                <h4>Share this post</h4>
+                <a class="icon-twitter" href="http://twitter.com/share?text=22 June 2016&url=http://baygeldin.name/gsoc-2016/milestone"
+                    onclick="window.open(this.href, 'twitter-share', 'width=550,height=235');return false;">
+                    <span class="hidden">Twitter</span>
+                </a>
+                <a class="icon-facebook" href="https://www.facebook.com/sharer/sharer.php?u=http://baygeldin.name/gsoc-2016/milestone"
+                    onclick="window.open(this.href, 'facebook-share','width=580,height=296');return false;">
+                    <span class="hidden">Facebook</span>
+                </a>
+                <a class="icon-google-plus" href="https://plus.google.com/share?url=http://baygeldin.name/gsoc-2016/milestone"
+                   onclick="window.open(this.href, 'google-plus-share', 'width=490,height=530');return false;">
+                    <span class="hidden">Google+</span>
+                </a>
+            </section>
+
+        </footer>
+
+    </article>
+
+</main>
+
+    
+
+    <footer class="site-footer">
+    <a class="subscribe icon-feed" href="http://baygeldin.name/gsoc-2016/rss/index.xml"><span class="tooltip">Subscribe!</span></a>
+    <div class="inner">
+         <section class="copyright">All rights violated  &copy; 2016</section>
+    </div>
+</footer>
+
+    <!-- Ghost outputs important scripts and data with this tag -->
+    <!-- {{ghost_foot}} -->
+
+    <script src="https://code.jquery.com/jquery-1.12.3.min.js" integrity="sha256-aaODHAgvwQW1bFOGXMeX+pC4PZIPsvn2h1sArYOhgXQ=" crossorigin="anonymous"></script>    
+    <script type="text/javascript" src="http://baygeldin.name/gsoc-2016/assets/js/jquery.fitvids.js"></script>
+    <script type="text/javascript" src="http://baygeldin.name/gsoc-2016/assets/js/index.js"></script>
+    <script type="text/javascript" src="http://baygeldin.name/gsoc-2016/assets/js/prism.js"></script>
+
+</body>
+</html>
