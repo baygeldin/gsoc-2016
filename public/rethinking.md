@@ -23,7 +23,7 @@ The first thing I realized is that the back-pressure is already implemented in N
 ## Final
 In the upcoming week I want to make a server using `ws-streamify` and docker containers (in order to make it more native with taskcluster environment). I've already familirar with using docker API from javascript (btw, I managed to get rid of that hack with `sleep` in tests!). Also, I want to finish GDB wrapper (well, almost finish :)).
 
-## P.S
+## P.S.
 * Seems like I broke RSS the last time... Sorry, it's fixed now :)
 * Since I decided to use a different protocol for `react-gdb` I don't need `ws-exec` anymore and I decided to delete it. Anyway, with `ws-streamify` it can be implemented very easily. 
 * I hate exams (ﾉಥДಥ)ﾉ︵┻━┻
