@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>ReactGDB | GSoC 2016</title>
+    <title>GSoC 2016</title>
     <link>http://baygeldin.name/gsoc-2016</link>
     <description>Web GDB frontend project with Mozilla.</description>
     <atom:link href="hello-world/feed.xml" rel="self" type="application/rss+xml" />
