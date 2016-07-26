@@ -1,7 +1,7 @@
 {
   "globals": {
     "blog": {
-      "title": "GSoC 2016",
+      "title": "ReactGDB | GSoC 2016",
       "description": "Web GDB frontend project with Mozilla.",
       "logo": "/assets/images/gsoc.png",
       "cover": "/assets/images/bg.jpg",
