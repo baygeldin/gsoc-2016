@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+
+    <title>Final | GSoC 2016</title>
+    <meta name="description" content="Web GDB frontend project with Mozilla." />
+
+    <meta name="HandheldFriendly" content="True" />
+    <meta name="MobileOptimized" content="320" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!--<link rel="shortcut icon" href="favicon.ico">-->
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+		<meta name="msapplication-TileColor" content="#9a1aaf">
+		<meta name="msapplication-TileImage" content="http://baygeldin.name/gsoc-2016/assets/favicon/mstile-144x144.png">
+		<meta name="msapplication-config" content="http://baygeldin.name/gsoc-2016/assets/favicon/browserconfig.xml" />
+
+		<link rel="manifest" href="http://baygeldin.name/gsoc-2016/assets/favicon/manifest.json">
+		<link rel="apple-touch-icon-precomposed" sizes="57x57" href="http://baygeldin.name/gsoc-2016/assets/favicon/apple-touch-icon-57x57.png" />
+		<link rel="apple-touch-icon-precomposed" sizes="60x60" href="http://baygeldin.name/gsoc-2016/assets/favicon/apple-touch-icon-60x60.png" />
+		<link rel="apple-touch-icon-precomposed" sizes="72x72" href="http://baygeldin.name/gsoc-2016/assets/favicon/apple-touch-icon-72x72.png" />
+		<link rel="apple-touch-icon-precomposed" sizes="76x76" href="http://baygeldin.name/gsoc-2016/assets/favicon/apple-touch-icon-76x76.png" />
+		<link rel="apple-touch-icon-precomposed" sizes="114x114" href="http://baygeldin.name/gsoc-2016/assets/favicon/apple-touch-icon-114x114.png" />
+		<link rel="apple-touch-icon-precomposed" sizes="120x120" href="http://baygeldin.name/gsoc-2016/assets/favicon/apple-touch-icon-120x120.png" />
+		<link rel="apple-touch-icon-precomposed" sizes="144x144" href="http://baygeldin.name/gsoc-2016/assets/favicon/apple-touch-icon-144x144.png" />
+		<link rel="apple-touch-icon-precomposed" sizes="152x152" href="http://baygeldin.name/gsoc-2016/assets/favicon/apple-touch-icon-152x152.png" />
+		<link rel="mask-icon" href="http://baygeldin.name/gsoc-2016/assets/favicon/safari-pinned-tab.svg" color="#9a1aaf">
+		<link rel="icon" type="image/png" href="http://baygeldin.name/gsoc-2016/assets/favicon/favicon-16x16.png" sizes="16x16" />
+		<link rel="icon" type="image/png" href="http://baygeldin.name/gsoc-2016/assets/favicon/favicon-32x32.png" sizes="32x32" />
+		<link rel="icon" type="image/png" href="http://baygeldin.name/gsoc-2016/assets/favicon/favicon-96x96.png" sizes="96x96" />
+
+    <link rel="stylesheet" type="text/css" href="http://baygeldin.name/gsoc-2016/assets/css/screen.css" />
+    <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Noto+Serif:400,700,400italic|Open+Sans:700,400" />
+    <link rel="stylesheet" type="text/css" href="http://baygeldin.name/gsoc-2016/assets/css/prism.css" />
+
+    <!-- Ghost outputs important style and meta data with this tag -->
+    <!-- {{ghost_head}} -->
+</head>
+<body class="post-template">
+
+    
+        <main class="content" role="main">
+
+    <article class="post">
+      <header class="post-header">
+    <a class="blog-logo" href="http://baygeldin.name/gsoc-2016">
+        
+            <img src="http://baygeldin.name/gsoc-2016/assets/images/gsoc.png" alt="Blog Logo" />
+        
+    </a>
+</header>
+
+
+        <span class="post-meta"><time datetime="Fri, 30 Sep 2016 21:00:00 GMT">1 October 2016</time></span>
+
+        <section class="post-content">
+            <h1>Final</h1><p>Well, I guess that I should&#39;ve written this post earlier :D But it&#39;s better late than never. A whole month passed since the end of GSoC and even more since the last post. Long story short, I managed to pass GSoC and got something working. But I didn&#39;t have enough time to write the final post since I&#39;ve been too busy with moving to Finland and getting familiar with the university life here (I am studying abroad this semester). But now I finally have some spare time and I&#39;d like to tell about results, problems during development and solutions to them. But most importantly, I&#39;d like to tell about future plans and integration.</p>
+<h2>Results</h2><p>I think that I managed to raise the project to the stage when it can be played with. In the main repository there&#39;s an example configured. In order to change debugged project one  just needs to change name of the project in the main file of the example and build system will do all the rest (it&#39;s that easy). A lot of examples to debug are available in the <code>gdb-examples</code> repository (including multithreaded projects and projects with multiple processes and dynamic loading of object files). Seems like it&#39;s actually working! And I believe that it&#39;s possible to integrate out of curiosity, but since I didn&#39;t have enough time to finish the UI (styles, etc.) it&#39;s probably not so appealing. Also, I wrote a pretty comprehensive documentation for <code>gdb-js</code> and a smaller one for <code>react-gdb</code> (it just doesn&#39;t need a that big documentation). Anyway, <a href="https://gist.github.com/baygeldin/10653d3268e7d2f63e22818b2a3f14d3">here&#39;s</a> my evaluation report (it&#39;s concise to say the least, heh).</p>
+<h2>Problems and solutions</h2><p>Now, finally, there&#39;s something that&#39;s interesting. A long time has passed, so I probably forgot most of the problems. But that&#39;s for the better, since only the most interesting ones remain (I hope). </p>
+<h3>DockerHub</h3><p>There&#39;s a problem with tests that depend on the docker image. Whenever you push new build to the DockerHub it&#39;s likely that your CI tests for the dependent project will break (even without pushing new commits!). That&#39;s because you always checkout the <code>latest</code> tag and it&#39;s not possible to checkout specific build. So, the only solution to this problem is to mark every release of your Docker image and checkout this specific version. It worked for me at least. Though, it&#39;s still needed to transfer the DockerHub repository of <code>gdb-examples</code> under the <strong>@taskcluster</strong> organization and set up automated builds.</p>
+<h3>Context</h3><p>I learned and remembered a lot about C compilation process during this project. And at last I fixed and improved the <code>context</code> command that now returns all global and local symbols in the context (static variables, externs, arguments) with types.</p>
+<h3>Classes</h3><p>JavaScript is a dynamic-typed language and thus adding new abstractions through creating new classes doesn&#39;t really help and usually complicates the code rather than the opposite. But in this case adding new object types for threads, breakpoints, etc. helped to simplify the API. It&#39;s important to remember though, that they are just wrappers around the static information.</p>
+<h3>Scopes</h3><p>I extended the idea of execution of methods within threads to thread groups. Now most of the methods accept <em>scope</em> parameter which can be either thread object or thread-group object or nothing. This really helped to support debugging multiple processes.</p>
+<h3>Source files</h3><p>There were multiple problems with source files. First, the list of source files <strong>changes</strong> (e.g. new process is attached or new executable loader with <code>execl</code> call, etc.). I decided that the most reasonable approach is to update the global list of source files anytime new object file is loaded into GDB. But in order to avoid unnecessary updates I added a filter for objfiles so that only those files that match the regexp will trigger the update (there&#39;s a lot of shared libraries, you know! :)). Second, the command that returns source files list makes it only for the current thread group (i.e. target). Thus, I needed to manually switch thread groups in order to get their source files lists (scopes really helped there). Third, some projects have enormous amount of source files. It&#39;s reasonable to filter them with a regexp. It&#39;s possible to do with a custom Python command, but due to GDB/MI bug you can&#39;t really get results of the MI commands in the Python. It&#39;s possible to use only Python and CLI API. Python API doesn&#39;t know anything about source files. So, I made use of CLI API which involved a couple of hacks to make it more reliable (of course, I&#39;m still using Python for this).</p>
+<h3>Attaching processes</h3><p>There were multiple issues too. First, to attach a process you need <em>root</em> privileges. Luckily, Docker has them by default. Second, you also need to run Docker container with a <code>--security-opt seccomp:unconfined</code> flag. And third, you need to manually create a new inferior and load the process there. Otherwise it&#39;ll override the current target. <code>gdb-js</code> now do it all automatically.</p>
+<h3>Commands results</h3><p>I almost completely changed the logic of handling the results of CLI and custom commands execution. Before that, I&#39;ve been executing custom commands as CLI commands in the Python API and returning the string as a result. But the problem here is that during the background execution of CLI command in the Python API a lot of asynchronous things may happen and their output will be also printed to the resulting string (not sure if it&#39;s a bug or convenience, heh). So it&#39;s not possible to predict what will return the custom command. But there&#39;s a way to make custom commands more reliable — move the logic of framing results to base class of a custom command (that&#39;s exactly what I did). Also, I added possibility to create custom asynchronous event handlers and subscribe to them in the same manner. It helped to make use of <code>new-objfile</code> event.</p>
+<h3>Synchronization</h3><p><code>async</code> and <code>await</code> are great, but it&#39;s very possible to shoot yourself in the foot and don&#39;t notice it if you&#39;re not paying enough attention to how event-loop works. Especially, when two async methods depend on some shared data or state, calling them simultaneously may produce different results (i.e. methods are unstable). This is very relevant to me since some methods of <code>gdb-js</code> depend on the internal GDB state. It would&#39;ve be okay in simple case, but I use it inside Redux application where actions don&#39;t wait other actions to complete. This leads to using of mutexes and/or semaphores. Sounds weird, huh? JavaScript is not multithreaded and that&#39;s why everyone on the Internet is saying that mutexes are not needed in there. But I faced this problem before and I know that it&#39;s not true. So, I googled better and found <a href="https://blog.jcoglan.com/2016/07/12/mutexes-and-javascript/">this article</a> with which I agree completely. Though, I went the easier way: I breaked down methods to public and private and wrapped public methods with a <code>synchronize</code> routine. Now no public method is executed before previous are completed. By the way, this is a good use case for ES7 decorators :)</p>
+<h3>Dealing with GDB/MI bugs</h3><p>What else to expect there :D Of course, there were a lot of bugs. I fixed GDB/MI parser, because I found further mistakes in the grammar. Also, there was <a href="https://sourceware.org/bugzilla/show_bug.cgi?id=18077">a bug</a> with background execution of <code>-exec-run</code>, I switched to using <code>run&amp;</code> CLI command to handle this. Anyway, what I wanted to say is that <a href="https://sourceware.org/bugzilla/">bugzilla</a> happened to be a very good helper in resolving GDB specific bugs.</p>
+<h3>react-gdb API</h3><p>And yeah, I changed <code>react-gdb</code> API a little. README is pretty comprehensive, so I don&#39;t think that it&#39;s necessary to elaborate it here. Just wanted to say that <code>detachOnFork</code> is meant for debugging purposes, it&#39;s recommended to use <code>inferiorProvider</code> instead since it&#39;s crossplatform feature.</p>
+<h3>Ahead-of-Time breakpoints</h3><p>At this moment the main source of project source files is GDB. This works fine, but it contains only files that were used in compilation. If we want more IDE like environment we need to fetch the list from repository. But what&#39;s more important, user will probably want to set breakpoints to files that are not yet loaded to GDB (e.g. when debugging multiple targets), so that makes sense to make use of external source list. Whoa, seems like a complete refactoring! But actually it&#39;s not. It&#39;s just an another layer of abstraction. I don&#39;t want to dive into details, but I&#39;d like to say that mapper functions will be needed (those who map repository file to a file in file system and vice versa).</p>
+<h2>Lessons learned</h2><h3>JavaScript is not scalable</h3><p>I&#39;ve always liked JS for its flexibility that helps in prototyping. However, it&#39;s not scalable and due to its dynamic nature it&#39;s hard to refactor. This project was a little bit untypical and I needed to refactor code a couple of times. This is to say the least pain in the ass. Lots of runtime errors, &quot;undefined is not a function&quot; and so on. I even considered to use TypeScript, but typing is not the only problem of JS. In a medium to large sized projects it&#39;s beneficial to use functional style to do things since such code is easier to maintain. It&#39;s possible in JS with tons of libs like Immutable.js, React is also functional to the bones. But it really starts to annoy quickly because of too much boilerplate and tons of external tools. Language itself doesn&#39;t help at all! I remember using F# for UI application and I really liked this experience. It&#39;s not so verbose as Java and C#, but still have all pros of a statically-typed language. Even more I liked Haskell for its brutal purity. So, I decided to find a good alternative to JS that compiles to JS. I spent a lot of time on that, because there are lot of choices: TypeScript, ClojureScript, ScalaJS, GHCJS, PureScript, Elm, etc. Let&#39;s put it in brief: ClojureScript is dynamic, TypeScript is not functional, ScalaJS and GHCJS have huge runtimes and Elm is limited. Whereas PureScript is the most pragmatic solution I&#39;ve ever seen, seriously. Basically, it&#39;s a Haskell with JS semantics (without laziness by default). It&#39;s very easy to embed into any JS application (not harder than to start using CoffeeScript!). It has a very simple FFI, it&#39;s possible to use on the server and what&#39;s more important there&#39;s no need to give up on the familiar tools and whole Node.js ecosystem. So, for now I&#39;ll stick with it.</p>
+<h3>TDD is not an answer</h3><p>I tried to practice TDD in the project. But I soon noticed that blindly following to TDD best practices doesn&#39;t make any good. Then I happened upon the <a href="http://martinfowler.com/articles/is-tdd-dead/">&quot;Is TDD dead?&quot; series</a>, watched it and learned some lessons. I understood that mocks should be avoided if possible. If you are writing tests returning mocks returning mocks returning mocks then your tests depend on the exact implementation and it makes the code impossible to refactor. Only public interface should be tested, but when internal logic starts to grow too fast, it&#39;s time to think about moving this logic to separate useful and reusable module and test its public interface instead. In this sense it&#39;s a good thing that I have separate modules for <code>gdb-js</code> and <code>react-gdb</code>.</p>
+<h2>Plans</h2><p>Yeah, I know that speaking about plans after one month of inactivity is a little bit bold :) But I hope I&#39;ll have some spare time to contribute even in conditions when I have to pass exams in two universities in one semester, heh. Anyway, the only remaining thing to implement is pretty UI, it&#39;s not a lot. Usually I spend some time on creating good UI, but this time I didn&#39;t have enough time :( So, first I&#39;d like to quickly watch a Google&#39;s course about responsive design and then try to apply it to the project. Probably, I&#39;ll use <code>react-bootstrap</code> together with CSSModules (which is already in use). Also it&#39;s needed to support <a href="https://github.com/css-modules/css-modules/blob/master/docs/theming.md">custom themes</a>. I don&#39;t have enough scopes to integrate it with taskcluster and real test cases from treeherder, but I&#39;m sure that when styles are ready, someone will want to integrate it! :) </p>
+<h2>P.S.</h2><p>This is the last post in this blog. From now, everything related to the project will be posted in the GitHub repository. It was a nice and really useful time for me, but I hope that this project will be useful for someone as well. Good bye! :)</p>
+        </section>
+
+        <footer class="post-footer">
+
+            
+                <section class="author">
+                    <h4>Alexander Baygeldin</h4>
+                    <p>Hi, here are my weekly reports for GSoC 2016</p>
+                </section>
+            
+
+            <section class="share">
+                <h4>Share this post</h4>
+                <a class="icon-twitter" href="http://twitter.com/share?text=1 October 2016&url=http://baygeldin.name/gsoc-2016/final"
+                    onclick="window.open(this.href, 'twitter-share', 'width=550,height=235');return false;">
+                    <span class="hidden">Twitter</span>
+                </a>
+                <a class="icon-facebook" href="https://www.facebook.com/sharer/sharer.php?u=http://baygeldin.name/gsoc-2016/final"
+                    onclick="window.open(this.href, 'facebook-share','width=580,height=296');return false;">
+                    <span class="hidden">Facebook</span>
+                </a>
+                <a class="icon-google-plus" href="https://plus.google.com/share?url=http://baygeldin.name/gsoc-2016/final"
+                   onclick="window.open(this.href, 'google-plus-share', 'width=490,height=530');return false;">
+                    <span class="hidden">Google+</span>
+                </a>
+            </section>
+
+        </footer>
+
+    </article>
+
+</main>
+
+    
+
+    <footer class="site-footer">
+    <a class="subscribe icon-feed" href="http://baygeldin.name/gsoc-2016/rss/index.xml"><span class="tooltip">Subscribe!</span></a>
+    <div class="inner">
+         <section class="copyright">All rights violated  &copy; 2016</section>
+    </div>
+</footer>
+
+    <!-- Ghost outputs important scripts and data with this tag -->
+    <!-- {{ghost_foot}} -->
+
+    <script src="https://code.jquery.com/jquery-1.12.3.min.js" integrity="sha256-aaODHAgvwQW1bFOGXMeX+pC4PZIPsvn2h1sArYOhgXQ=" crossorigin="anonymous"></script>    
+    <script type="text/javascript" src="http://baygeldin.name/gsoc-2016/assets/js/jquery.fitvids.js"></script>
+    <script type="text/javascript" src="http://baygeldin.name/gsoc-2016/assets/js/index.js"></script>
+    <script type="text/javascript" src="http://baygeldin.name/gsoc-2016/assets/js/prism.js"></script>
+
+</body>
+</html>
