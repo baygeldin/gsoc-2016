@@ -11,7 +11,7 @@ In the proposal to this project I said that a single CSS file will be enough, bu
 ## Editor
 Initially I decided to use Prism with a bunch of plugins for syntax highlighting. But then **@jonasfj** suggested to use full-fledged code editor instead (like Ace or Codemirror). And it was a great idea! :) I decided to use Ace, because it's more popular and have all of the needed features: the ability to set breakpoints, readonly mode, specific line highlighting (markers). It'd be nice if it also could focus (i.e. center the viewport) on the specific line, 'cause I left a place for this functionality in the React application. By the way, I found a ready React component for this editor. Unfortunately, it doesn't support `guttermousedown` event which I need. I think I'll fork it, add this functionality, and install it directly from my repo with npm (I don't think that PR will be merged as soon as I send it). 
 
-## Planes
+## Plans
 * Embed Ace editor
 * Launch the demo
 * Finish and style the components

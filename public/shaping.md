@@ -37,7 +37,7 @@ I feel quite confident about the current project structure now and I think that 
 ## Debug
 I use `debug` npm package to see logs from both gdb-js and react-gdb. Logging functions for react-gdb I store in the  `debug.js` file. For all of the sources (react-gdb, gdb-js and example application) I use full source-map generation (despite this, builds are still fast). Source maps also work for stacktraces (it's necessary when error is throwed inside the promise).  I use ReduxDevTools and also I injected binded to store actions to the global object so that I can use and debug them without creating GUI first. Also I try to document PropTypes very thoroughly. It's a little verbose so that I even decided to put common PropTypes to a `/components/common.js` file, but I found out that it can really help to catch unobvious bugs.
 
-## Planes
+## Plans
 * In the code of react-gdb there are a lot of `parseInt` here and there. It's because of gdb-js not handling conversation of strings to numbers itself. So what I'd like to do is defining what objects gdb-js returns from its methods, documenting it and releasing a new version on npm (I've already fixed a bunch of bugs, so it's time for a new release anyway).
 * I need to create a new multithreaded example in the `gdb-examples` repo that has multiple files (in order to test the tree view for sources).
 * Besides, I haven't added needed functionality to `ace.js` yet, so this is what I need to do next.
